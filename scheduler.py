@@ -10,9 +10,10 @@ class Runer:
         self.lifeRingAmount = lifeRingAmount
         self.intfcr = intfcr
         self.restingBonus = restingBonus
+        self.baseMulti = 2 if self.restingBonus else 1
         self.CurrentLifeRingTime = 20*60 if self.lifeRingAmount > 0 else 0
         self.baseRestoreTime = 2 if self.promoted else 3
-        self.baseRestoreAmount = 4 if self.restingBonus else 2
+        self.baseRestoreAmount = 2 * self.baseMulti
         self.CurrentCalculatedMana = 0
         self.blankRunes = blankRunes
 
@@ -44,7 +45,7 @@ class Runer:
     async def lifeRingRegen(self):
         if (self.lifeRingAmount == 0):
             return
-        self.CurrentCalculatedMana += 8
+        self.CurrentCalculatedMana += 8*self.baseMulti
         print(f"[Ring] Regen Mana: {self.CurrentCalculatedMana}")
         self.CurrentLifeRingTime -= 6
         print(f"[Ring] Time: {self.CurrentLifeRingTime}")
