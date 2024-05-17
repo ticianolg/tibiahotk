@@ -1,15 +1,14 @@
-import win32com.client as comclt
-import time
+from interfacer import Interfacer
+from scheduler import Runer
+import asyncio
 
-wsh= comclt.Dispatch("WScript.Shell")
-contagem = 1
-wsh.AppActivate("Tibia") # ativar janela do jogo
-while True:
-    print(f'Enviando comando {contagem}')
-    time.sleep(10)
-    wsh.SendKeys("0") # hotkey para comer
-    time.sleep(2)
-    wsh.SendKeys("9") # hotkey para runa
-    time.sleep(5)
-    contagem = contagem+1
-    
+intfcr = Interfacer("o", spellHotkey="9", ringHotkey="v", charName="Luis Paulo Style")
+sch = Runer(
+    promoted=True, 
+    lifeRingAmount=2, 
+    restingBonus=False, 
+    blankRunes=296, 
+    intfcr=intfcr)
+sch.setMana(338)
+sch.setLifeRing(17*60 + 42)
+sch.Start()
