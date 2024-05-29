@@ -1,6 +1,5 @@
 import asyncio
 from interfacer import Interfacer
-from logging import getLogger
 import time
 
 class Runer:
