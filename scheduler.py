@@ -3,8 +3,8 @@ from interfacer import Interfacer
 import time
 
 class Runer:
-    def __init__(self, promoted, lifeRingAmount, restingBonus, blankRunes, intfcr: Interfacer):
-        self.neededMana = 530
+    def __init__(self, promoted, lifeRingAmount, restingBonus, blankRunes, requiredMana, intfcr: Interfacer):
+        self.requiredMana = requiredMana
         self.promoted = promoted
         self.lifeRingAmount = lifeRingAmount
         self.intfcr = intfcr
@@ -18,9 +18,9 @@ class Runer:
 
     def Start(self):
         print(f"[Main] Iniciando...")
-        self.intfcr.Eat()
+        asyncio.run(self.intfcr.Eat())
         if self.lifeRingAmount > 0:
-            self.intfcr.Ring()
+            asyncio.run(self.intfcr.Ring())
         asyncio.run(self.ScheduleTasks())
 
     async def schedule_task(self, task, interval):
@@ -32,13 +32,17 @@ class Runer:
         time.sleep(3)
         baseRegen_scheduler = self.schedule_task(self.baseManaRegen, self.baseRestoreTime)
         ring_scheduler = self.schedule_task(self.lifeRingRegen, 6)
-        check_scheduler = self.schedule_task(self.checkMana, 30)
+        check_scheduler = self.schedule_task(self.checkMana, 8)
         eat_scheduler = self.schedule_task(self.intfcr.Eat, 10)
+        preemptiveEnter = self.schedule_task(self.preventServerSave, 300)
 
         await asyncio.gather(baseRegen_scheduler, ring_scheduler, check_scheduler, eat_scheduler)
 
+    async def preventServerSave(self):
+        self.intfcr.PreemptiveEnter()
+
     async def baseManaRegen(self):
-        self.CurrentCalculatedMana += self.baseRestoreAmount
+        self.CurrentCalculatedMana += self.baseRestoreAmount*1.02
         print(f"[Base] Regen Mana: {self.CurrentCalculatedMana}")
 
     async def lifeRingRegen(self):
@@ -53,7 +57,7 @@ class Runer:
             print(f"[Ring] Rings: {self.lifeRingAmount}")
             if self.lifeRingAmount > 0:
                 self.CurrentLifeRingTime = 20*60
-                self.intfcr.Ring()
+                await self.intfcr.Ring()
     
     def setLifeRing(self, time):
         self.CurrentLifeRingTime = time
@@ -63,8 +67,8 @@ class Runer:
 
     async def checkMana(self):
         print(f"[Check] Mana: {self.CurrentCalculatedMana}")
-        if self.CurrentCalculatedMana >= self.neededMana:
-            self.intfcr.Rune()
+        if self.CurrentCalculatedMana >= self.requiredMana:
+            await self.intfcr.Rune()
             self.blankRunes -= 1
             print(f"[Check] Blank Runes: {self.blankRunes}")
-            self.CurrentCalculatedMana -= self.neededMana
+            self.CurrentCalculatedMana -= self.requiredMana

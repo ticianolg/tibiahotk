@@ -1,3 +1,4 @@
+import time
 import pyautogui
 import win32gui
 
@@ -16,14 +17,22 @@ class Interfacer:
         win32gui.SetForegroundWindow(self.hwnd)  # Activate the window
         pyautogui.press(self.foodHotkey)
 
-    def Rune(self):
+    async def Rune(self):
         win32gui.ShowWindow(self.hwnd, 5)
         pyautogui.press("alt")
         win32gui.SetForegroundWindow(self.hwnd)  # Activate the window
         pyautogui.press(self.spellHotkey)
 
-    def Ring(self):
+    async def Ring(self):
         win32gui.ShowWindow(self.hwnd, 5)
         pyautogui.press("alt")
         win32gui.SetForegroundWindow(self.hwnd)  # Activate the window
         pyautogui.press(self.ringHotkey)
+
+    async def PreemptiveEnter(self):
+        win32gui.ShowWindow(self.hwnd, 5)
+        pyautogui.press("alt")
+        win32gui.SetForegroundWindow(self.hwnd)  # Activate the window
+        pyautogui.press('enter')
+        time.sleep(5)
+        pyautogui.press('enter')

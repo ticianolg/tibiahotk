@@ -1,3 +1,5 @@
+import json
+import os
 from interfacer import Interfacer
 from scheduler import Runer
 
@@ -25,25 +27,54 @@ def zeroIfNullInput(message):
   else:
     return int(user_input)
 
-char = input("Nome do Char: ")
-spellhotkey = input("Hotkey para magia: ")
-ringhotkey = input("Hotkey para life ring: ")
-foodhotkey = input("Hotkey para comer: ")
-Promoted = get_yes_no_input("Char com promotion? (S/N) ")
-Bonus = get_yes_no_input("Char com bonus semanal de mana? (S/N) ")
-blankrunes = zeroIfNullInput("Quantidade de blank runes: ")
-liferings = zeroIfNullInput("Qtd de life rings: ")
-TempoLifeRings = zeroIfNullInput("Tempo atual do primeiro life ring (segundos). Deixar em branco se brand new: ")
+# Load configuration from file if it exists
+CONFIG_FILE = 'tibia.config'
+if os.path.exists(CONFIG_FILE):
+    with open(CONFIG_FILE, 'r') as file:
+        config = json.load(file)
+else:
+    config = {}
+
+if len(config) > 0:
+   getFromFile = get_yes_no_input("Carregar configuração salva? S/N")
+else:
+   getFromFile = False
+# Prompt for inputs if not already in config
+if 'char' not in config or not getFromFile:
+    config['char'] = input("Nome do Char: ")
+if 'spellhotkey' not in config or not getFromFile:
+    config['spellhotkey'] = input("Hotkey para magia: ")
+if 'ringhotkey' not in config or not getFromFile:
+    config['ringhotkey'] = input("Hotkey para life ring: ")
+if 'foodhotkey' not in config or not getFromFile:
+    config['foodhotkey'] = input("Hotkey para comer: ")
+if 'Promoted' not in config or not getFromFile:
+    config['Promoted'] = get_yes_no_input("Char com promotion? (S/N) ")
+if 'Bonus' not in config or not getFromFile:
+    config['Bonus'] = get_yes_no_input("Char com bonus semanal de mana? (S/N) ")
+if 'blankrunes' not in config or not getFromFile:
+    config['blankrunes'] = zeroIfNullInput("Quantidade de blank runes: ")
+if 'liferings' not in config or not getFromFile:
+    config['liferings'] = zeroIfNullInput("Qtd de life rings: ")
+if 'TempoLifeRings' not in config or not getFromFile:
+    config['TempoLifeRings'] = zeroIfNullInput("Tempo atual do primeiro life ring (segundos). Deixar em branco se brand new: ")
+if 'manaNecessaria' not in config or not getFromFile:
+    config['manaNecessaria'] = zeroIfNullInput("Mana necessária para magia: ")
 mana = zeroIfNullInput("Mana atual (aproximada): ")
 
-intfcr = Interfacer(foodHotkey=foodhotkey, spellHotkey=spellhotkey, ringHotkey=ringhotkey, charName=char)
+# Save the configuration to a file
+with open(CONFIG_FILE, 'w') as file:
+    json.dump(config, file, indent=4)
+
+intfcr = Interfacer(foodHotkey=config['foodhotkey'], spellHotkey=config['spellhotkey'], ringHotkey=config['ringhotkey'], charName=config['char'])
 sch = Runer(
-    promoted=Promoted, 
-    lifeRingAmount=liferings, 
-    restingBonus=Bonus, 
-    blankRunes=blankrunes, 
+    promoted=config['Promoted'], 
+    lifeRingAmount=config['liferings'], 
+    restingBonus=config['Bonus'], 
+    blankRunes=config['blankrunes'], 
+    requiredMana=config['manaNecessaria'],
     intfcr=intfcr)
 sch.setMana(mana)
-if TempoLifeRings > 0:
-    sch.setLifeRing(TempoLifeRings)
+if config['TempoLifeRings'] > 0:
+    sch.setLifeRing(config['TempoLifeRings'])
 sch.Start()
