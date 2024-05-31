@@ -45,5 +45,5 @@ sch = Runer(
     intfcr=intfcr)
 sch.setMana(mana)
 if TempoLifeRings > 0:
-    sch.setLifeRing(4*60 + 6)
+    sch.setLifeRing(TempoLifeRings)
 sch.Start()
